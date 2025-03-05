@@ -53,19 +53,22 @@ local function spawnLoop(pool, spawnPoints, spawnMin, spawnMax)
 		activateObject(pool, spawnPoints)
 		print("object activated")
 	end
-	wait(math.random(spawnMin, spawnMax))
+	task.wait(math.random(spawnMin, spawnMax))
 end
 
 -- =======================================================================================================
 -- Duplicate these with different parameters. Don't duplicate the script :)
-while true do
-	spawnLoop(
-		customerPool, 
-		customerSpawnPoints, 
-		spawnIntervalMin, 
-		spawnIntervalMax
-	)
-end
+
+task.spawn(function()
+	while true do
+		spawnLoop(
+			customerPool, 
+			customerSpawnPoints, 
+			spawnIntervalMin, 
+			spawnIntervalMax
+		)
+	end
+end)
 
 -- =======================================================================================================
 -- example for handling death
