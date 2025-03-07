@@ -10,6 +10,8 @@ local function initializeObjectPoolFromFolder(objectFolder, objectPool)
 		if object then
 			object:SetAttribute("Active", false)  -- Custom attribute to track usage
 			object.Transparency = 1 
+			object.Anchored = true
+			object.CanCollide = false
 			table.insert(objectPool, object)
 		end
 	end
@@ -42,6 +44,7 @@ local function activateObject(pool, spawnPoints)
 	local object = getInactiveObject(pool)
 	if not object then return end
 	object.CanCollide = true
+	object.Anchored = false
 	local spawnPosition = spawnPoints[math.random(1, #spawnPoints)]
 	object.Position = spawnPosition
 	object.Transparency = 0 
@@ -57,7 +60,7 @@ local function spawnLoop(pool, spawnPoints, spawnMin, spawnMax)
 end
 
 -- =======================================================================================================
--- Duplicate these with different parameters. Don't duplicate the script :)
+-- Duplicate these with different parameters.(As well as initializations) Don't duplicate the script :)
 
 task.spawn(function()
 	while true do
@@ -71,7 +74,7 @@ task.spawn(function()
 end)
 
 -- =======================================================================================================
--- example for handling death
+-- Example for handling death
 
 local function onDeath(object)
 	object.CanCollide = false
