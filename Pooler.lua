@@ -1,5 +1,5 @@
-local customerFolder = workspace.CustomerPool
-local customerSpawnPointFolder = workspace.SpawnTargets
+local customerFolder = workspace.Customers.CustomerPool
+local customerSpawnPointFolder = workspace.Customers.SpawnTargets
 local customerSpawnPoints = {}
 local customerPool = {}
 local maxActive = 5
@@ -9,10 +9,8 @@ local function initializeObjectPoolFromFolder(objectFolder, objectPool)
 	for _, object in ipairs(objectFolder:GetChildren()) do
 		if object then
 			object:SetAttribute("Active", false)  -- Custom attribute to track usage
-			object.Transparency = 1 
-			object.Anchored = true
-			object.CanCollide = false
 			table.insert(objectPool, object)
+			object.Parent = game.ReplicatedStorage.PooledObjects
 		end
 	end
 end
@@ -43,12 +41,16 @@ end
 local function activateObject(pool, spawnPoints)
 	local object = getInactiveObject(pool)
 	if not object then return end
-	object.CanCollide = true
-	object.Anchored = false
+	object.Parent = workspace.Customers.WanderingCustomers
 	local spawnPosition = spawnPoints[math.random(1, #spawnPoints)]
-	object.Position = spawnPosition
-	object.Transparency = 0 
+	object.HumanoidRootPart.Position = spawnPosition
 	object:SetAttribute("Active", true)
+	
+	for _, part in ipairs(object:GetDescendants()) do
+		if part:IsA("BasePart") then
+			part.Transparency = 0
+		end
+	end
 end
 
 local function spawnLoop(pool, spawnPoints, spawnMin, spawnMax)
@@ -65,7 +67,7 @@ end
 task.spawn(function()
 	while true do
 		spawnLoop(
-			customerPool, 
+			customerPool,
 			customerSpawnPoints, 
 			spawnIntervalMin, 
 			spawnIntervalMax
@@ -74,9 +76,15 @@ task.spawn(function()
 end)
 
 -- =======================================================================================================
--- Example for handling death
+
+customerFolder.ChildAdded:Connect(function()
+	task.wait(0.1)
+	initializeObjectPoolFromFolder(customerFolder, customerPool)
+end)
+
 
 local function onDeath(object)
+	object.Anchored = true
 	object.CanCollide = false
 	object.Transparency = 1
 	object:SetAttribute("Active", false)
